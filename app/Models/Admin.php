@@ -3,11 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+
 
 class Admin extends Authenticatable
 {
@@ -74,19 +76,16 @@ class Admin extends Authenticatable
     }
 
     ##--------------------------------- CUSTOM FUNCTIONS
-    public function nameOnHeader()
+    public function nameOnHeader(): string
     {
-        if (strlen($this->name) > 10) {
-            return \substr($this->name, 0, 10) . '..';
-        }
-        return $this->name;
+        return Str::limit($this->name, 10);
     }
 
 
     ##--------------------------------- SCOPES
     public function scopeAdmin($query)
     {
-        $query->where('type', 'admin');
+       return  $query->where('type', 'admin');
     }
 
     ##--------------------------------- ACCESSORS & MUTATORS
@@ -98,11 +97,7 @@ class Admin extends Authenticatable
     protected function password(): Attribute
     {
         return Attribute::make(
-            set: function ($value) {
-                if ($value != null) {
-                    return bcrypt($value);
-                }
-            },
+            set: fn($value) => $value ? bcrypt($value) : null
         );
     }
 }
